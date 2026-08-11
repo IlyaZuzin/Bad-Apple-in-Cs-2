@@ -2,19 +2,19 @@ import cv2
 import os
 
 # Настройки
-FRAME_DIR = r"G:\Python\Bad Apple cs 2\Frames"
-CFG_DIR = r"G:\Python\Bad Apple cs 2\Cfg"
-SCALE = 0.1
-CENTER_PITCH = 0
-CENTER_YAW = 90
-MAX_COMMANDS = 250  # Лимит команд на один конфиг
+frame_dir = r"Ваш путь до папки с кадрами"
+cfg_dir = r"Ваш путь до папки с cfg"
+scale = 0.1
+pitch_const = 0
+yaw_const = 90
+max = 250  # Лимит команд на один конфиг
 
-if not os.path.exists(CFG_DIR): os.makedirs(CFG_DIR)
+if not os.path.exists(cfg_dir): os.makedirs(cfg_dir)
 
 frame_idx = 0
 
 while True:
-    img_path = os.path.join(FRAME_DIR, f"Frame_{frame_idx:04d}.jpg")
+    img_path = os.path.join(frame_dir, f"Frame_{frame_idx:04d}.jpg")
     img = cv2.imread(img_path)
     if img is None: break
 
@@ -33,14 +33,14 @@ while True:
             approx = cv2.approxPolyDP(cnt, conf, True)
             for point in approx:
                 x, y = point[0]
-                pitch = CENTER_PITCH + (y - 240) * SCALE
-                yaw = CENTER_YAW - (x - 320) * SCALE
+                pitch = pitch_const + (y - 240) * scale
+                yaw = yaw_const - (x - 320) * scale
                 commands.append(f"setang {pitch:.2f} {yaw:.2f}; +attack; -attack;")
         
         commands.append("setang 0 90;")
 
-        # Проверка лимита: если команд слишком много, упрощаем контуры
-        if len(commands) <= MAX_COMMANDS:
+       
+        if len(commands) <= max:
             cfg_path = os.path.join(CFG_DIR, f"Frame_{frame_idx:04d}.cfg")
             with open(cfg_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(commands))
